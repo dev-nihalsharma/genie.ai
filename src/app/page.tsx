@@ -1,28 +1,34 @@
 'use client';
+import { sendPrompt } from '@/actions/notdiamond';
 import { Spinner } from '@/components/ui/spinner';
 import { Logout02Icon } from 'hugeicons-react';
+import { SendHorizonal } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
-  // const [promptHistory, setPromptHistory] = useState([]);
-  const [isPromptSubmiting, setIsPromptSubmiting] = useState(false);
+  // const [promptHistory, setPromptHistory] = useState([]);,
+  const [results, setResults] = useState([] as string[]);
+  const [isPromptSubmitting, setIsPromptSubmitting] = useState(false);
 
-  const submitPrompt = async () => {
+  const submitPrompt = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPromptSubmitting(true);
     try {
-      setIsPromptSubmiting(true);
-      console.log(isPromptSubmiting);
-      setTimeout(function () {
-        console.log('hlo');
-        //your code to be executed after 1 second
-      }, 1000);
+      console.log('Prompt:', prompt);
+      const result = await sendPrompt(prompt);
+
+      setResults([...results, result as string]);
+      // setPromptHistory([...promptHistory, { prompt, result }]);
 
       // save prompt message to local storage and also save the result to local storage {prompt: 'message', result: 'response'}
     } catch (error) {
       console.log(error);
     } finally {
-      setIsPromptSubmiting(false);
+      setIsPromptSubmitting(false);
+      setPrompt('');
     }
   };
 
@@ -39,28 +45,37 @@ export default function Home() {
   });
 
   return (
-    <div className='h-screen bg-black text-white flex'>
+    <div className='h-screen bg-[#1c1d1e] text-white flex'>
       {/* Sidebar */}
-      <div className='w-1/4 bg-gray-900 flex flex-col justify-between p-6 max-sm:hidden'>
+      <div className='w-1/4 bg-[#000000] flex flex-col justify-between p-6 max-sm:hidden'>
         <div>
           {/* Logo */}
           <div className='flex items-center space-x-2 mb-10'>
-            <div className='bg-white text-black rounded-full h-8 w-8 flex items-center justify-center font-bold'>
-              ⚡
-            </div>
-            <h1 className='text-xl font-semibold'>Larc AI</h1>
+            <Image
+              src={'/logo.jpeg'}
+              className='rounded-full h-11 -ml-5 mt-4 object-cover'
+              width={200}
+              height={50}
+              alt='Logo'
+            />
           </div>
 
           {/* Navigation */}
           <nav className='space-y-4'>
             <button className='bg-white text-black w-full text-left px-6 py-3 rounded-[50px] hover:bg-gray-300'>
-              New Chat
+              Ask Larc
             </button>
-            <button className=' w-full text-left px-6 py-3 rounded-[50px] hover:bg-gray-300 hover:text-black'>
-              Main Dashboard
+            <button
+              onClick={() => toast.info('To Be Released Soon!')}
+              className=' w-full text-left px-6 py-3 rounded-[50px] hover:bg-gray-300 hover:text-black'
+            >
+              Image Generator
             </button>
-            <button className=' w-full text-left px-6 py-3 rounded-[50px] hover:bg-gray-300 hover:text-black'>
-              Profile Settings
+            <button
+              onClick={() => toast.info('To Be Released Soon!')}
+              className=' w-full text-left px-6 py-3 rounded-[50px] hover:bg-gray-300 hover:text-black'
+            >
+              Video Generator
             </button>
           </nav>
         </div>
@@ -92,8 +107,8 @@ export default function Home() {
       <div className='flex-1 flex flex-col'>
         {/* Header */}
         <div className='flex justify-end p-6'>
-          <div className='bg-gray-800 text-sm flex items-center space-x-4 px-4 py-2 rounded-[50px]'>
-            <button className='bg-gray-600 rounded-full items-center  p-3'>
+          <div className='bg-[#000000] text-sm flex items-center space-x-4 px-4 py-2 rounded-[50px]'>
+            <button className='bg-[#2f2f2f] rounded-full items-center  p-3'>
               <Logout02Icon />
             </button>
 
@@ -110,22 +125,29 @@ export default function Home() {
         {/* Content Area */}
         <div className='relative flex-1 flex items-center justify-center'>
           <div className=' flex flex-col items-center w-full '>
+            <span className='absolute flex flex-col items-center top-12'>
+              <h1 className='text-3xl font-bold font-mono'>Simplicity In Unity</h1>
+              <h3 className='text-l font-mono text-gray-500'>
+                Ask Larc anything without bothering going anywhere else
+              </h3>
+              <h1>{results[results.length - 1]}</h1>
+            </span>
             <Image src={'/bg-image.png'} width={300} height={200} alt='bg image' />
-            <div className='absolute  bottom-10 flex flex-row  justify-between space-x-2 w-5/6'>
+            <form
+              onSubmit={(e) => submitPrompt(e)}
+              className='absolute  bottom-10 flex flex-row  justify-between space-x-2 w-5/6'
+            >
               <input
                 type='text'
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder='Type your message here...'
-                className=' w-full bg-gray-800 px-4 py-3 rounded-lg outline-none focus:ring-2 focus:ring-gray-600'
+                className=' w-full bg-[#2f2f2f] px-5 py-5 rounded-full outline-none focus:ring-2 focus:ring-[#252525]'
               />
-              <button
-                onClick={() => submitPrompt()}
-                className=' bg-gray-700 px-6 py-2 rounded-lg hover:bg-gray-600'
-              >
-                {isPromptSubmiting ? <Spinner /> : 'Submit'}
+              <button type='submit' className=' bg-[#000000] px-5 py-5 rounded-full hover:bg-[#101010] '>
+                {isPromptSubmitting ? <Spinner className='text-white w-6 h-6' /> : <SendHorizonal />}
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
